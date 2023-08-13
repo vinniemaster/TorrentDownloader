@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <input id="search" class="form-control" placeholder="Digite o nome torrent aqui..." />
+    <div id="cards">
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#search").keyup(function(){
+                var input = $("#search").val();
+                //var jsonInput = {};
+                $.ajax(
+                {
+                    type: 'GET',
+                    url: '/Home/QueryTPBApi?query=' + input,
+                    //data: {  },
+                    success: function (response) {
+                        var cardsHtml = "";
+                        response.forEach(item => {
+                            var cardHtml = "<div class='card w-100' style='width: 18rem;'>"+
+                                                "<div class='card-body'>"+
+                                                    "<h5 class='card-title'>" + item.name + "</h5>" +
+                                                    "<p class='card-text'>Tamanho: "+item.size+"</p>" +
+                                                    //"<a href='downloadTorrent("+item.id+")' class='card-link'>Baixar no servidor</a>"+
+                                                    "<button onclick='downloadTorrent("+item.id+")' class='btn btn-primary' type='submit'>Baixar no servidor</button>"+
+                                                "</div>"+
+                                            "</div>";
+
+                            cardsHtml = cardsHtml + cardHtml;
+                        });
+                        $("#cards").html(cardsHtml);
+                    },
+                });
+            })
+        });
+
+        function downloadTorrent(id){
+            $.ajax(
+                {
+                    type: 'POST',
+                    url: '/Home/DownloadTorrent?id=' + id,
+                    //data: {  },
+                   
+                });
+        };
+    </script>
+}
