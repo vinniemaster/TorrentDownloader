@@ -11,31 +11,33 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            
             $("#search").keyup(function(){
                 var input = $("#search").val();
-                //var jsonInput = {};
-                $.ajax(
-                {
-                    type: 'GET',
-                    url: '/Home/QueryTPBApi?query=' + input,
-                    //data: {  },
-                    success: function (response) {
-                        var cardsHtml = "";
-                        response.forEach(item => {
-                            var cardHtml = "<div class='card w-100' style='width: 18rem;'>"+
-                                                "<div class='card-body'>"+
-                                                    "<h5 class='card-title'>" + item.name + "</h5>" +
-                                                    "<p class='card-text'>Tamanho: "+item.size+"</p>" +
-                                                    //"<a href='downloadTorrent("+item.id+")' class='card-link'>Baixar no servidor</a>"+
-                                                    "<button onclick='downloadTorrent("+item.id+")' class='btn btn-primary' type='submit'>Baixar no servidor</button>"+
-                                                "</div>"+
-                                            "</div>";
-
-                            cardsHtml = cardsHtml + cardHtml;
-                        });
-                        $("#cards").html(cardsHtml);
-                    },
-                });
+                if(input.length > 3){
+                    $.ajax(
+                    {
+                        type: 'GET',
+                        url: '/Home/QueryTPBApi?query=' + input,
+                        success: function (response) {
+                            var cardsHtml = "";
+                            response.forEach(item => {
+                                var cardHtml = "<div class='card w-100' style='width: 18rem;'>"+
+                                                    "<div class='card-body'>"+
+                                                        "<h5 class='card-title'>" + item.name + "</h5>" +
+                                                        "<p class='card-text'>Tamanho: "+item.size+"</p>" +
+                                                        "<button onclick='downloadTorrent("+item.id+")' class='btn btn-primary' type='submit'>Baixar no servidor</button>"+
+                                                    "</div>"+
+                                                "</div>";
+                                cardsHtml = cardsHtml + cardHtml;
+                            });
+                            $("#cards").html(cardsHtml);
+                        },
+                    });
+                }
+                else{
+                    $("#cards").html(null);
+                }
             })
         });
 
@@ -43,9 +45,7 @@
             $.ajax(
                 {
                     type: 'POST',
-                    url: '/Home/DownloadTorrent?id=' + id,
-                    //data: {  },
-                   
+                    url: '/Home/DownloadTorrent?id=' + id,                  
                 });
         };
     </script>

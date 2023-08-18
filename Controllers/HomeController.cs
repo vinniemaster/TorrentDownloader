@@ -2,10 +2,13 @@
 using System.Diagnostics;
 using TPBApi.Models;
 using TPBApi.Classes;
+using TPBApi.Helpers;
 using System.Runtime.ConstrainedExecution;
 using System.Net;
 using Newtonsoft.Json;
 using HtmlAgilityPack;
+using MonoTorrent;
+using MonoTorrent.Client;
 
 namespace TPBApi.Controllers
 {
@@ -55,13 +58,21 @@ namespace TPBApi.Controllers
         [HttpPost]
         public void DownloadTorrent([FromQuery]int id) 
         {
-            //Parseando a page do TPB
+            //Parseando a page do TPB e pegando o link magnet
             var html = @"https://thepiratebay10.org/torrent/"+ id;
             HtmlWeb web = new HtmlWeb();
             var htmlDoc = web.Load(html);
             var xPath = htmlDoc.DocumentNode.SelectNodes("//*[@id=\"details\"]/div[3]/div[1]/a[1]");
-            var cu = xPath.Select(x => x.Attributes["href"].Value).FirstOrDefault();
+            var magnetLink = xPath.Select(x => x.Attributes["href"].Value).FirstOrDefault();
 
+            //Baixando o torrent
+            if(magnetLink != null)
+            {
+                DownloaderTorrent helper = new DownloaderTorrent();
+                helper.TorrentDownload(magnetLink);
+            }
+            
         }
+
     }
 }
