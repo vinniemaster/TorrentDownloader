@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using HtmlAgilityPack;
 using MonoTorrent;
 using MonoTorrent.Client;
+using System.Reflection;
 
 namespace TPBApi.Controllers
 {
@@ -26,17 +27,20 @@ namespace TPBApi.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Downloads()
         {
             return View();
         }
-
+        public IActionResult _download()
+        {
+            return PartialView("_download");
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
+        [HttpGet]
         public List<TPBJSON> QueryTPBApi([FromQuery]string query)
         {
             var retorno = new List<TPBJSON>();
@@ -56,7 +60,7 @@ namespace TPBApi.Controllers
 
 
         [HttpPost]
-        public void DownloadTorrent([FromQuery]int id) 
+        public IActionResult DownloadTorrent([FromQuery]int id, bool filmeSerie) 
         {
             //Parseando a page do TPB e pegando o link magnet
             var html = @"https://thepiratebay10.org/torrent/"+ id;
@@ -69,10 +73,25 @@ namespace TPBApi.Controllers
             if(magnetLink != null)
             {
                 DownloaderTorrent helper = new DownloaderTorrent();
-                helper.TorrentDownload(magnetLink);
+                var path = filmeSerie == true ? "D:\\Filmes & Series\\FIlmes" : "D:\\Filmes & Series\\Series";
+                helper.TorrentDownload(magnetLink, path);
             }
-            
+            return RedirectToAction("Downloads");
         }
 
+        [HttpGet]
+        public List<DownloadStatus> GetDownloadStatuses()
+        {
+            DownloaderTorrent downloadStatus = new DownloaderTorrent();
+            return downloadStatus.getDownloads();
+        }
+
+        [HttpGet]
+        public void ScanPlexLibrary()
+        {
+            HttpClient client = new HttpClient();
+
+            var response = client.GetAsync("http://192.168.0.5:32400/library/sections/all/refresh?X-Plex-Token=8-gocuzH-FQeHpq3YsEa").Result;
+        }
     }
 }

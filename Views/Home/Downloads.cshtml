@@ -1,0 +1,38 @@
+﻿@using TPBApi.Helpers;
+@using System.Threading;
+@{
+    ViewData["Title"] = "Downloads";
+}
+<div class="download">
+    <h1>Downloads</h1>
+    <button onclick='scanServer()' title="Clique aqui para atualizar a biblioteca do PLEX..." class='scanServer' type='submit'><i class='bx bx-laptop'></i></button>
+</div>
+
+
+<div id="Cards">
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {         
+            setInterval(showDownloads,3000);
+            //$('#Cards').load("/Home/_download");
+        });
+
+        function showDownloads(){
+            $('#Cards').load("/Home/_download");
+            console.log("Funcionando");
+        }
+        
+        function scanServer(){
+            $.ajax(
+                {
+                    type: 'GET',
+                    url: '/Home/ScanPlexLibrary' 
+                });
+        }
+        
+
+    </script>
+}

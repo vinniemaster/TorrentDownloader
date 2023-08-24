@@ -26,7 +26,7 @@
                                                     "<div class='card-body'>"+
                                                         "<h5 class='card-title'>" + item.name + "</h5>" +
                                                         "<p class='card-text'>Tamanho: "+item.size+"</p>" +
-                                                        "<button onclick='downloadTorrent("+item.id+")' class='btn btn-primary' type='submit'>Baixar no servidor</button>"+
+                                                        "<button onclick='showModalFilmeSerie("+item.id+")'  type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#staticBackdrop'>Baixar no servidor</button>"+
                                                     "</div>"+
                                                 "</div>";
                                 cardsHtml = cardsHtml + cardHtml;
@@ -42,11 +42,13 @@
         });
 
         function downloadTorrent(id){
+            var filmeSerie = $("#radioFilme").is(":checked");
             $.ajax(
                 {
                     type: 'POST',
-                    url: '/Home/DownloadTorrent?id=' + id,                  
+                    url: '/Home/DownloadTorrent?id=' + id + '&filmeSerie=' + filmeSerie,
                 });
+            window.location.replace("/Home/Downloads");
         };
     </script>
 }

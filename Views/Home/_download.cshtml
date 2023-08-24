@@ -1,0 +1,44 @@
+﻿@using TPBApi.Classes;
+@using TPBApi.Helpers;
+@{
+    Layout = null;
+    DownloaderTorrent downloadStatus = new DownloaderTorrent();
+}
+<div>
+    @if(downloadStatus.getDownloads() != null)
+    {
+        @foreach (var download in downloadStatus.getDownloads())
+            {
+            var downloadDec = string.Format("{0:0.00}", download.Progress);
+            var downloadInt = string.Format("{0:0}", download.Progress);
+
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@download.Name</h5>
+                        <p class="card-text">
+                            <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: @downloadInt%;" aria-valuenow="@downloadInt" aria-valuemin="0" aria-valuemax="100">@downloadDec%</div>
+                            </div>
+                        </p>
+                        <button class='btn btn-primary' type='submit'>Pausar</button>
+                        <button class='btn btn-primary' type='submit'>Cancelar</button>
+                    </div>
+                </div>
+        }
+    }
+    else
+    {
+        <p class="noDownloads">Não há downloads ativos neste momento.</p>
+    }
+    
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        
+    }
+    <script>
+        
+    </script>
+}

@@ -1,4 +1,18 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿function showModalFilmeSerie(id) {
+    $('#staticBackdropLabel').html("Baixar no Servidor");
+    $('.modal-body').html("<p>O conteúdo é um filme ou série?</p>" +
+        "<form id='filmeSerie'>"+
+        "<label>"+
+            "<input id='radioFilme' type='radio' name='tipo' value='filme' checked>"+
+                "Filme"+
+        "</label>" +
+        "</br>"+
+        "<label>" +       
+            "<input type='radio' name='tipo' value='serie'>"+
+                "Série"+
+            "</label>"+
+        "</form> ");
 
-// Write your JavaScript code.
+    $('#btnPrimary').attr("onclick", "downloadTorrent(" + id +   ")").html("Baixar");
+    $('#btnSecondary').html("Cancelar");
+}

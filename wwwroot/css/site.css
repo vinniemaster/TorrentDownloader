@@ -20,3 +20,27 @@ body {
 .card{
     margin-top: 20px;
 }
+
+.noDownloads {
+    color: #ccc;
+}
+
+.download {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.download h1 {
+    margin: 0;
+}
+
+
+.download button {
+    margin-left: auto;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 50px;
+}
+
