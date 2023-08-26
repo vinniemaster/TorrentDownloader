@@ -4,6 +4,7 @@ using System.Net;
 using TPBApi.Classes;
 using System.Xml.Linq;
 using System.IO;
+using System;
 
 namespace TPBApi.Helpers
 {
@@ -11,9 +12,9 @@ namespace TPBApi.Helpers
     {
         private static List<DownloadStatus> ActiveDownloads;
         private static ClientEngine Engine;
-
+        private List<string> log = new List<string>();
         public DownloaderTorrent()
-        {       
+        {
         }
 
         private async Task DownloadAsync(MagnetLink magnet, string path)
@@ -46,74 +47,101 @@ namespace TPBApi.Helpers
             foreach (TorrentManager manager in Engine.Torrents)
             {
 
-                //manager.PeerConnected += (o, e) => {
+                //manager.PeerConnected += (o, e) =>
+                //{
                 //    lock (Listener)
                 //        Listener.WriteLine($"Connection succeeded: {e.Peer.Uri}");
                 //};
-                //manager.ConnectionAttemptFailed += (o, e) => {
+                //manager.ConnectionAttemptFailed += (o, e) =>
+                //{
                 //    lock (Listener)
                 //        Listener.WriteLine(
                 //            $"Connection failed: {e.Peer.ConnectionUri} - {e.Reason}");
                 //};
                 //// Every time a piece is hashed, this is fired.
-                //manager.PieceHashed += delegate (object o, PieceHashedEventArgs e) {
+                //manager.PieceHashed += delegate (object o, PieceHashedEventArgs e)
+                //{
                 //    lock (Listener)
                 //        Listener.WriteLine($"Piece Hashed: {e.PieceIndex} - {(e.HashPassed ? "Pass" : "Fail")}");
                 //};
 
                 //// Every time the state changes (Stopped -> Seeding -> Downloading -> Hashing) this is fired
-                //manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs e) {
+                //manager.TorrentStateChanged += delegate (object o, TorrentStateChangedEventArgs e)
+                //{
                 //    lock (Listener)
                 //        Listener.WriteLine($"OldState: {e.OldState} NewState: {e.NewState}");
                 //};
 
                 //// Every time the tracker's state changes, this is fired
-                //manager.TrackerManager.AnnounceComplete += (sender, e) => {
+                //manager.TrackerManager.AnnounceComplete += (sender, e) =>
+                //{
                 //    Listener.WriteLine($"{e.Successful}: {e.Tracker}");
                 //};
                 await manager.StartAsync();
 
-                var peers = await manager.GetPeersAsync();
-
             }
             ActiveDownloads = new List<DownloadStatus>();
-            while (Engine.IsRunning)
+            try
             {
-                Console.WriteLine($"DownloadSpeed: {Engine.TotalDownloadSpeed}");
-                foreach(TorrentManager manager in Engine.Torrents)
+                while (Engine.IsRunning)
                 {
-                    var peers = await manager.GetPeersAsync();
-                    Console.WriteLine($"Peers: {peers.Count()}");
-                    DownloadStatus downloadActive = ActiveDownloads.FirstOrDefault(x => x.InfoHash == manager.InfoHash);
-                    
-                    if (downloadActive != null)
+                    //Console.WriteLine($"DownloadSpeed: {Engine.TotalDownloadSpeed}");
+                    foreach (TorrentManager manager in Engine.Torrents)
                     {
-                        var indexDownload = ActiveDownloads.FindIndex(x => x.InfoHash == manager.InfoHash);
-                        ActiveDownloads[indexDownload].Name = manager.MagnetLink.Name;
-                        ActiveDownloads[indexDownload].Peers = peers.Count();
-                        ActiveDownloads[indexDownload].DownloadSpeed = Engine.TotalDownloadSpeed;
-                        ActiveDownloads[indexDownload].State = manager.State.ToString();
-                        ActiveDownloads[indexDownload].Progress = manager.Progress;
-                    }
-                    else
-                    {
-                        ActiveDownloads.Add(new DownloadStatus()
+                        var peers = await manager.GetPeersAsync();
+                        //Console.WriteLine($"Peers: {peers.Count()}");
+                        DownloadStatus downloadActive = ActiveDownloads.FirstOrDefault(x => x.InfoHash == manager.InfoHash);
+
+                        if (downloadActive != null)
                         {
-                            InfoHash = manager.InfoHash
-                        });
-                    }  
+                            var indexDownload = ActiveDownloads.FindIndex(x => x.InfoHash == manager.InfoHash);
+                            ActiveDownloads[indexDownload].Name = manager.MagnetLink.Name;
+                            ActiveDownloads[indexDownload].Peers = peers.Count();
+                            ActiveDownloads[indexDownload].DownloadSpeed = Engine.TotalDownloadSpeed;
+                            ActiveDownloads[indexDownload].State = manager.State.ToString();
+                            ActiveDownloads[indexDownload].Progress = manager.Progress;
+                            if (manager.Error != null)
+                            {
+                                ActiveDownloads[indexDownload].Exception = manager.Error.Exception;
+                                ActiveDownloads[indexDownload].Reason = manager.Error.Reason;
+                                log.Add($"ERRO {manager.Error.Exception}, {manager.Error.Reason}");
+                            }
+                            log.Add($"{manager.MagnetLink.Name},{peers.Count()},{Engine.TotalDownloadSpeed},{manager.State.ToString()}, {manager.Progress}");
 
+                            if (manager.Progress == 100)
+                            {
+                                StreamWriter txt = new StreamWriter("log.txt");
+                                foreach (var item in log)
+                                {
+                                    txt.Write(item.ToString() + "\n");
+                                }
+                                txt.Close();
+
+                                await manager.StopAsync();
+                            }
+                        }
+                        else
+                        {
+                            ActiveDownloads.Add(new DownloadStatus()
+                            {
+                                InfoHash = manager.InfoHash
+                            });
+                        }
+
+                    }
+                    await Task.Delay(1000);
+                    //Console.Clear();
                 }
-                await Task.Delay(1000);
-                Console.Clear();               
             }
-
-            foreach (var manager in Engine.Torrents)
+            catch(Exception ex)
             {
-                await manager.StopAsync();
+                StreamWriter txt = new StreamWriter("ErrorLog.txt");
+                txt.Write(ex.ToString() + "\n");
+                txt.Write($"{magnet.Name},{magnet.Size},{downloadsPath}");
+                txt.Close();
             }
 
-
+            await Engine.StopAllAsync();
         }
 
         public async void TorrentDownload(string magnetUri, string path)
