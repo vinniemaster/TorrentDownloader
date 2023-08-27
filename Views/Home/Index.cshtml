@@ -16,15 +16,17 @@
             $("#search").keyup(function(){
                 clearTimeout(timerId);
                 timerId = setTimeout(function(){tpbQuery()}, 1500);
-                
+                showHideLoading("#cards");
 
             });
         });
 
         function tpbQuery(){
-            console.log("funcuinando");
+            
+            showHideLoading("#cards");
             var input = $("#search").val();
-            if (input != null) {
+            console.log(input);
+            if (input != "") {
                 $.ajax(
                     {
                         type: 'GET',
