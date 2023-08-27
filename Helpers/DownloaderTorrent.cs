@@ -144,11 +144,20 @@ namespace TPBApi.Helpers
             await Engine.StopAllAsync();
         }
 
-        public async void TorrentDownload(string magnetUri, string path)
+        public async Task<Response<string>> TorrentDownload(string magnetUri, string path)
         {
             MagnetLink magnet = MagnetLink.Parse(magnetUri);
 
-            await DownloadAsync(magnet, path);
+            try
+            {
+                await DownloadAsync(magnet, path);
+            }
+            catch(Exception ex)
+            {
+                return new Response<string>() { Message = "ERRO", Data = ex.ToString() };
+            }
+
+            return new Response<string>() { Message = "OK" };
         }
 
         public List<DownloadStatus> getDownloads()

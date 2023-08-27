@@ -11,35 +11,44 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            
+            let timerId;
+
             $("#search").keyup(function(){
-                var input = $("#search").val();
-                if(input.length > 3){
-                    $.ajax(
+                clearTimeout(timerId);
+                timerId = setTimeout(function(){tpbQuery()}, 1500);
+                
+
+            });
+        });
+
+        function tpbQuery(){
+            console.log("funcuinando");
+            var input = $("#search").val();
+            if (input != null) {
+                $.ajax(
                     {
                         type: 'GET',
                         url: '/Home/QueryTPBApi?query=' + input,
                         success: function (response) {
                             var cardsHtml = "";
                             response.forEach(item => {
-                                var cardHtml = "<div class='card w-100' style='width: 18rem;'>"+
-                                                    "<div class='card-body'>"+
-                                                        "<h5 class='card-title'>" + item.name + "</h5>" +
-                                                        "<p class='card-text'>Tamanho: "+item.size+"</p>" +
-                                                        "<button onclick='showModalFilmeSerie("+item.id+")'  type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#staticBackdrop'>Baixar no servidor</button>"+
-                                                    "</div>"+
-                                                "</div>";
+                                var cardHtml = "<div class='card w-100' style='width: 18rem;'>" +
+                                    "<div class='card-body'>" +
+                                    "<h5 class='card-title'>" + item.name + "</h5>" +
+                                    "<p class='card-text'>Tamanho: " + item.size + "</p>" +
+                                    "<button onclick='showModalFilmeSerie(" + item.id + ")'  type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#staticBackdrop'>Baixar no servidor</button>" +
+                                    "</div>" +
+                                    "</div>";
                                 cardsHtml = cardsHtml + cardHtml;
                             });
                             $("#cards").html(cardsHtml);
                         },
                     });
-                }
-                else{
-                    $("#cards").html(null);
-                }
-            })
-        });
+            }
+            else {
+                $("#cards").html(null);
+            }
+        };
 
         function downloadTorrent(id){
             var filmeSerie = $("#radioFilme").is(":checked");

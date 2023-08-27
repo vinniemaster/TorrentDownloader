@@ -47,8 +47,8 @@ namespace TPBApi.Controllers
         {
             var retorno = new List<TPBJSON>();
             HttpClient client = new HttpClient();
-
-            var response = client.GetAsync("https://apibay.org/q.php?q=" + query).Result;
+            var tpbApiurl = _configuration.GetValue<string>("TPBAPIUrl");
+            var response = client.GetAsync(tpbApiurl +"/q.php?q=" + query).Result;
             var json = response.Content.ReadAsStringAsync().Result;
 
             if (response.IsSuccessStatusCode)
@@ -62,10 +62,11 @@ namespace TPBApi.Controllers
 
 
         [HttpPost]
-        public IActionResult DownloadTorrent([FromQuery]int id, bool filmeSerie) 
+        public Response<string> DownloadTorrent([FromQuery]int id, bool filmeSerie) 
         {
+            var tpbUrl = _configuration.GetValue<string>("TPBUrl");
             //Parseando a page do TPB e pegando o link magnet
-            var html = @"https://thepiratebay10.org/torrent/"+ id;
+            var html = tpbUrl + id;
             HtmlWeb web = new HtmlWeb();
             var htmlDoc = web.Load(html);
             var xPath = htmlDoc.DocumentNode.SelectNodes("//*[@id=\"details\"]/div[3]/div[1]/a[1]");
@@ -74,11 +75,23 @@ namespace TPBApi.Controllers
             //Baixando o torrent
             if(magnetLink != null)
             {
+
+                var FilmesPath = _configuration.GetValue<string>("FilmesPath");
+                var SeriesPath = _configuration.GetValue<string>("SeriesPath");
                 DownloaderTorrent helper = new DownloaderTorrent();
-                var path = filmeSerie == true ? "D:\\Filmes & Series\\FIlmes" : "D:\\Filmes & Series\\Series";
-                helper.TorrentDownload(magnetLink, path);
+                var path = filmeSerie == true ? FilmesPath : SeriesPath;
+                var response = helper.TorrentDownload(magnetLink, path);
+                if(response.Result.Message == "OK")
+                {
+                    return new Response<string> { Message= response.Result.Message.ToString() };
+                }
+                else
+                {
+                    return new Response<string>() { Message = response.Result.Message.ToString(), Data = response.Result.Data.ToString() };
+                }
+
             }
-            return RedirectToAction("Downloads");
+            return new Response<string> { Message = "Magnet Link inválido" };
         }
 
         [HttpGet]
@@ -92,8 +105,10 @@ namespace TPBApi.Controllers
         public void ScanPlexLibrary()
         {
             HttpClient client = new HttpClient();
+            var PlexIPAddress = _configuration.GetValue<string>("PlexIPAddress");
+            var PlexServerToken = _configuration.GetValue<string>("PlexServerToken");
 
-            var response = client.GetAsync("http://192.168.0.5:32400/library/sections/all/refresh?X-Plex-Token=8-gocuzH-FQeHpq3YsEa").Result;
+            var response = client.GetAsync("http://"+ PlexIPAddress + ":32400/library/sections/all/refresh?X-Plex-Token="+ PlexServerToken).Result;
         }
     }
 }
