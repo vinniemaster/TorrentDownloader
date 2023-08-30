@@ -44,3 +44,12 @@ body {
     font-size: 50px;
 }
 
+.noTorrents {
+    color: #ccc;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    width: 50%;
+    padding-top: 20px;
+    transform: translate(-50%, -50%);
+}

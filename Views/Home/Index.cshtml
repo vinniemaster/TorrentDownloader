@@ -32,18 +32,24 @@
                         url: '/Home/QueryTPBApi?query=' + input,
                         success: function (response) {
                             var cardsHtml = "";
-                            response.forEach(item => {
+                            console.log(response);
+                            if (response[0].name != "No results returned") {
+                                response.forEach(item => {
 
-                                var sizeFileConverted = ConvertSizeFile(item.size);
-                                var cardHtml = "<div class='card w-100' style='width: 18rem;'>" +
-                                    "<div class='card-body'>" +
-                                    "<h5 class='card-title'>" + item.name + "</h5>" +
-                                    "<p class='card-text'>Tamanho: " + sizeFileConverted + "</p>" +
-                                    "<button onclick='showModalFilmeSerie(" + item.id + ")'  type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#staticBackdrop'>Baixar no servidor</button>" +
-                                    "</div>" +
-                                    "</div>";
-                                cardsHtml = cardsHtml + cardHtml;
-                            });
+                                    var sizeFileConverted = ConvertSizeFile(item.size);
+                                    var cardHtml = "<div class='card w-100' style='width: 18rem;'>" +
+                                        "<div class='card-body'>" +
+                                        "<h5 class='card-title'>" + item.name + "</h5>" +
+                                        "<p class='card-text'>Tamanho: " + sizeFileConverted + "</p>" +
+                                        "<button onclick='showModalFilmeSerie(" + item.id + ")'  type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#staticBackdrop'>Baixar no servidor</button>" +
+                                        "</div>" +
+                                        "</div>";
+                                    cardsHtml = cardsHtml + cardHtml;
+                                });
+                            }
+                            else{
+                                cardsHtml = "<p class='noTorrents'>Nenhum torrent foi encontrado</p>";
+                            }
                             $("#cards").html(cardsHtml);
                         },
                     });

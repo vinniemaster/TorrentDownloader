@@ -24,8 +24,10 @@
                         {
                         var downloadSpeed = download.DownloadSpeed != 0 ? "Speed: " + Helpers.ConvertFileSize(int.Parse(download.DownloadSpeed.ToString())) : "";
                         <p>
-                            Peers: @download.Peers  @downloadSpeed
-                            
+                            Peers: @download.Peers                            
+                        </p>
+                        <p>
+                            @downloadSpeed
                         </p>
                         <p class="card-text">
                             <div class="progress">
