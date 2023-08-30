@@ -10,8 +10,16 @@ namespace TPBApi.Helpers
 {
     public class DownloaderTorrent
     {
-        private static List<DownloadStatus> ActiveDownloads;
-        private static ClientEngine Engine;
+        private static List<DownloadStatus> ActiveDownloads = new List<DownloadStatus>();
+        private static EngineSettingsBuilder engineSettingBuilder = new EngineSettingsBuilder
+        {
+            AllowPortForwarding = true,
+            AutoSaveLoadDhtCache = true,
+            AutoSaveLoadFastResume = true,
+            AutoSaveLoadMagnetLinkMetadata = true,
+            HttpStreamingPrefix = new Uri($"http://127.0.0.1:55125")
+        };
+        private static ClientEngine Engine = new ClientEngine(engineSettingBuilder.ToSettings());
         private List<string> log = new List<string>();
         public DownloaderTorrent()
         {
@@ -20,30 +28,18 @@ namespace TPBApi.Helpers
         private async Task DownloadAsync(MagnetLink magnet, string path)
         {
 
-            const int httpListeningPort = 55125;
-
-            var engineSettingBuilder = new EngineSettingsBuilder
-            {          
-                AllowPortForwarding = true,
-                AutoSaveLoadDhtCache = true,
-                AutoSaveLoadFastResume = true,             
-                AutoSaveLoadMagnetLinkMetadata = true,
-                HttpStreamingPrefix = new Uri($"http://127.0.0.1:{httpListeningPort}")
-            };
             var torrentSettingsBuilder = new TorrentSettingsBuilder
             {
                 MaximumConnections = 60,
             };
-
-            
-
+          
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
             var downloadsPath = Path.Combine(Environment.CurrentDirectory, path);
-
-            Engine = new ClientEngine(engineSettingBuilder.ToSettings());                    
+            
             await Engine.AddAsync(magnet, downloadsPath, torrentSettingsBuilder.ToSettings());
+
             foreach (TorrentManager manager in Engine.Torrents)
             {
 
@@ -80,7 +76,7 @@ namespace TPBApi.Helpers
                 await manager.StartAsync();
 
             }
-            ActiveDownloads = new List<DownloadStatus>();
+            
             try
             {
                 while (Engine.IsRunning)
@@ -95,9 +91,10 @@ namespace TPBApi.Helpers
                         if (downloadActive != null)
                         {
                             var indexDownload = ActiveDownloads.FindIndex(x => x.InfoHash == manager.InfoHash);
+                            ActiveDownloads[indexDownload].Index = indexDownload;
                             ActiveDownloads[indexDownload].Name = manager.MagnetLink.Name;
                             ActiveDownloads[indexDownload].Peers = peers.Count();
-                            ActiveDownloads[indexDownload].DownloadSpeed = Engine.TotalDownloadSpeed;
+                            ActiveDownloads[indexDownload].DownloadSpeed = manager.Monitor.DownloadSpeed;
                             ActiveDownloads[indexDownload].State = manager.State.ToString();
                             ActiveDownloads[indexDownload].Progress = manager.Progress;
                             if (manager.Error != null)
@@ -165,6 +162,26 @@ namespace TPBApi.Helpers
             
             var activeDownload = ActiveDownloads;
             return activeDownload;
+        }
+
+        public void pauseDownload(int index)
+        {
+            var ActiveDownloadList = ActiveDownloads[index];
+
+            var downloadActive = Engine.Torrents.Where(x => x.InfoHash == ActiveDownloadList.InfoHash).FirstOrDefault();
+
+            downloadActive.PauseAsync();
+
+        }
+
+        public void retomarDownload(int index)
+        {
+            var ActiveDownloadList = ActiveDownloads[index];
+
+            var downloadActive = Engine.Torrents.Where(x => x.InfoHash == ActiveDownloadList.InfoHash).FirstOrDefault();
+
+            downloadActive.StartAsync();
+
         }
     }
 }

@@ -110,5 +110,19 @@ namespace TPBApi.Controllers
 
             var response = client.GetAsync("http://"+ PlexIPAddress + ":32400/library/sections/all/refresh?X-Plex-Token="+ PlexServerToken).Result;
         }
+
+        [HttpPost]
+        public void PauseDownload(int index)
+        {
+            DownloaderTorrent downloader = new DownloaderTorrent();
+            downloader.pauseDownload(index);
+        }
+
+        [HttpPost]
+        public void RetomarDownload(int index)
+        {
+            DownloaderTorrent downloader = new DownloaderTorrent();
+            downloader.retomarDownload(index);
+        }
     }
 }

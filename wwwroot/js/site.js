@@ -57,3 +57,19 @@ function ConvertSizeFile(number) {
 
     return retorno;
 }
+
+function pauseDownload(index) {
+    $.ajax(
+        {
+            type: 'POST',
+            url: '/Home/PauseDownload?index=' + index,
+        });
+}
+
+function retomarDownload(index) {
+    $.ajax(
+        {
+            type: 'POST',
+            url: '/Home/RetomarDownload?index=' + index,
+        });
+}

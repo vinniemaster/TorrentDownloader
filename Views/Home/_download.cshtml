@@ -36,8 +36,15 @@
                             
                         </p>
                         }
-
-                        <button class='btn btn-primary' type='submit'>Pausar</button>
+                    @if(download.State != "Paused")
+                    {
+                        <button onclick="pauseDownload(@download.Index)" class='btn btn-primary' type='submit'>Pausar</button>
+                    }
+                    else
+                    {
+                        <button onclick="retomarDownload(@download.Index)" class='btn btn-primary' type='submit'>Retomar</button>
+                    }
+                    
                         <button class='btn btn-primary' type='submit'>Cancelar</button>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ namespace TPBApi.Classes
     
     public class DownloadStatus
     {
+        public int Index { get; set; }
         public InfoHash InfoHash { get; set; }
         public string? Name { get; set; }
         public double? Progress { get; set; }
