@@ -22,10 +22,16 @@
                         }
                         else
                         {
+                        var downloadSpeed = download.DownloadSpeed != 0 ? "Speed: " + Helpers.ConvertFileSize(int.Parse(download.DownloadSpeed.ToString())) : "";
+                        <p>
+                            Peers: @download.Peers  @downloadSpeed
+                            
+                        </p>
                         <p class="card-text">
                             <div class="progress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: @downloadInt%;" aria-valuenow="@downloadInt" aria-valuemin="0" aria-valuemax="100">@downloadDec%</div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: @downloadInt%;" aria-valuenow="@downloadInt" aria-valuemin="0" aria-valuemax="100">@downloadDec%</div>                           
                             </div>
+                            
                         </p>
                         }
 
@@ -48,6 +54,6 @@
         
     }
     <script>
-        
+
     </script>
 }

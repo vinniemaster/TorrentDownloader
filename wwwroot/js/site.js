@@ -28,3 +28,32 @@ function showHideLoading(id) {
         $(id).html("");
     }
 }
+
+function ConvertSizeFile(number) {
+    var retorno = "";
+    if (number.length >= 13 && number.length < 16) {
+        retorno = ((((number / 1000) / 1000) / 1000) / 1000);
+        retorno = retorno.toFixed(2);
+        retorno = retorno + " TB";
+    }
+    else if (number.length >= 10 && number.length < 13) {
+        retorno = (((number / 1000) / 1000) / 1000);
+        retorno = retorno.toFixed(2);
+        retorno = retorno + " GB";
+    }
+    else if (number.length >= 7 && number.length < 10) {
+        retorno = ((number / 1000) / 1000);
+        retorno = retorno.toFixed(2);
+        retorno = retorno + " MB";
+    }
+    else if (number.length >= 4 && number.length < 7) {
+        retorno = number / 1000;
+        retorno = retorno.toFixed(2);
+        retorno = retorno + " KB";
+    }
+    else if (number.length < 4) {
+        retorno = number + " bytes";
+    }
+
+    return retorno;
+}
