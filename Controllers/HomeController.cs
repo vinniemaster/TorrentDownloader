@@ -10,6 +10,7 @@ using HtmlAgilityPack;
 using MonoTorrent;
 using MonoTorrent.Client;
 using System.Reflection;
+using System.IO;
 
 namespace TPBApi.Controllers
 {
@@ -62,7 +63,7 @@ namespace TPBApi.Controllers
 
 
         [HttpPost]
-        public Response<string> DownloadTorrent([FromQuery]int id, bool filmeSerie) 
+        public Response<string> DownloadTorrent([FromQuery]int id, bool filmeSerie, string SerieName) 
         {
             var tpbUrl = _configuration.GetValue<string>("TPBUrl");
             //Parseando a page do TPB e pegando o link magnet
@@ -79,7 +80,7 @@ namespace TPBApi.Controllers
                 var FilmesPath = _configuration.GetValue<string>("FilmesPath");
                 var SeriesPath = _configuration.GetValue<string>("SeriesPath");
                 DownloaderTorrent helper = new DownloaderTorrent();
-                var path = filmeSerie == true ? FilmesPath : SeriesPath;
+                var path = filmeSerie == true ? FilmesPath : SeriesPath+"\\"+SerieName;
                 var response = helper.TorrentDownload(magnetLink, path);
                 if(response.Result.Message == "OK")
                 {
@@ -123,6 +124,19 @@ namespace TPBApi.Controllers
         {
             DownloaderTorrent downloader = new DownloaderTorrent();
             downloader.retomarDownload(index);
+        }
+
+        [HttpGet]
+        public List<string> getSeriesStored()
+        {
+            var seriesPath = _configuration.GetValue<string>("SeriesPath");
+
+            if (Directory.Exists(seriesPath))
+            {
+                string[] subpastas = Directory.GetDirectories(seriesPath);
+                return subpastas.Select(x => x.Replace(seriesPath,"").Replace("\\","")).ToList();
+            }
+            return null;
         }
     }
 }

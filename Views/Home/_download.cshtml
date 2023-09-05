@@ -5,7 +5,7 @@
     DownloaderTorrent downloadStatus = new DownloaderTorrent();
 }
 <div>
-    @if(downloadStatus.getDownloads() != null)
+    @if(downloadStatus.getDownloads().Count() != 0)
     {
         @foreach (var download in downloadStatus.getDownloads())
             {

@@ -1,4 +1,9 @@
-﻿function showModalFilmeSerie(id) {
+﻿let downloadId = "";
+
+
+
+
+function showModalFilmeSerie(id) {
     $('#staticBackdropLabel').html("Baixar no Servidor");
     $('.modal-body').html("<p>O conteúdo é um filme ou série?</p>" +
         "<form id='filmeSerie'>"+
@@ -7,14 +12,18 @@
                 "Filme"+
         "</label>" +
         "</br>"+
-        "<label>" +       
-            "<input type='radio' name='tipo' value='serie'>"+
+        "<label id='radioSerie'>" +       
+            "<input  type='radio' name='tipo' value='serie'>"+
                 "Série"+
-            "</label>"+
-        "</form> ");
+        "</label>" +
+        "</form> " +
+        "<div id='SelectSerie'></div>");
 
-    $('#btnPrimary').attr("onclick", "downloadTorrent(" + id +   ")").html("Baixar");
+    $('#btnPrimary').attr("onclick", "downloadTorrent(" + id + ")").html("Baixar").prop('disabled', false);
     $('#btnSecondary').html("Cancelar");
+
+    downloadId = "downloadTorrent(" + id;
+    
 };
 
 var loadingToF = false;

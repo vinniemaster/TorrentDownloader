@@ -10,15 +10,88 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            let timerId;
+        let serieValue = "";
 
+        $(document).on('change', '#SelectSerie', function () {
+            if ($(this).val() != "") {
+                serieValue = $(this).val();
+            }
+
+            console.log(serieValue);
+
+            var boolSelect = serieValue == '--Cadastrar Nova Série--';
+
+            if (boolSelect) {
+                $("#btnPrimary").prop('disabled', true);
+                $("#inputSerie").html(
+                    "<label for='nomeSerie'> Digite o nome da série: </label>" +
+                    "<input type='text' id='nomeSerie' name= 'nomeSerie'>"
+                );
+            }
+            else {
+                $("#btnPrimary").prop('disabled', false);
+                $('#btnPrimary').attr("onclick", downloadId + ",'" + serieValue + "')");
+            }
+        });
+
+        $(document).on('change', '#filmeSerie', function () {
+
+            var filmeSerie = $('input[name="tipo"]:checked').val();
+
+            if (filmeSerie === 'serie') {
+
+                $.ajax(
+                    {
+                        type: 'GET',
+                        url: '/Home/getSeriesStored',
+                        success: function (response) {
+                            var optionsHtml = "";
+                            optionsHtml =
+                                "<label>Escolha uma série:</label>" +
+                                "<select id='SelectSerie'>";
+                            response.forEach(item => {
+                                var option = "<option value='" + item + "'>" + item + "</option>";
+                                optionsHtml = optionsHtml + option;
+                            });
+
+                            optionsHtml = optionsHtml +
+                                "<option value='--Cadastrar Nova Série--'>--Cadastrar Nova Série--</option>" +
+                                "</select>" +
+                                "<div id='inputSerie'></div>";
+
+                            $('#SelectSerie').html(optionsHtml);
+
+
+                        },
+                    });
+            }
+            else {
+                $('#SelectSerie').html(null);
+            }
+        });
+
+        $(document).on('keyup', '#inputSerie', function () {
+
+
+            serieValue = $("#nomeSerie").val();
+            if (serieValue != "") {
+                $("#btnPrimary").prop('disabled', false);
+                $('#btnPrimary').attr("onclick", downloadId + ",'" + serieValue + "')");
+            }
+        });
+
+        $(document).ready(function () {
+          
+
+            let timerId;
+  
             $("#search").keyup(function(){
                 clearTimeout(timerId);
-                timerId = setTimeout(function(){tpbQuery()}, 1500);
+                timerId = setTimeout(function(){tpbQuery()}, 1800);
                 showHideLoading("#cards");
 
             });
+
         });
 
         function tpbQuery(){
@@ -32,7 +105,6 @@
                         url: '/Home/QueryTPBApi?query=' + input,
                         success: function (response) {
                             var cardsHtml = "";
-                            console.log(response);
                             if (response[0].name != "No results returned") {
                                 response.forEach(item => {
 
@@ -51,6 +123,8 @@
                                 cardsHtml = "<p class='noTorrents'>Nenhum torrent foi encontrado</p>";
                             }
                             $("#cards").html(cardsHtml);
+
+
                         },
                     });
             }
@@ -59,14 +133,27 @@
             }
         };
 
-        function downloadTorrent(id){
-            var filmeSerie = $("#radioFilme").is(":checked");
-            $.ajax(
-                {
-                    type: 'POST',
-                    url: '/Home/DownloadTorrent?id=' + id + '&filmeSerie=' + filmeSerie,
-                });
-            window.location.replace("/Home/Downloads");
+        function downloadTorrent(id,serieValue){
+            var filmeSerieBool = $("#radioFilme").is(":checked");
+
+
+            if (filmeSerieBool) {
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: '/Home/DownloadTorrent?id=' + id + '&filmeSerie=' + filmeSerieBool,
+                    });
+                window.location.replace("/Home/Downloads");
+            }
+            else{
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: '/Home/DownloadTorrent?id=' + id + '&filmeSerie=' + filmeSerieBool + '&SerieName='+serieValue,
+                    });
+                window.location.replace("/Home/Downloads");
+                
+            }
         };
     </script>
 }
