@@ -126,6 +126,13 @@ namespace TPBApi.Controllers
             downloader.retomarDownload(index);
         }
 
+        [HttpPost]
+        public async void PararDownload(int index)
+        {
+            DownloaderTorrent downloader = new DownloaderTorrent();
+            await downloader.pararDownload(index);
+        }
+
         [HttpGet]
         public List<string> getSeriesStored()
         {

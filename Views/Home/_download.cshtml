@@ -24,7 +24,7 @@
                         {
                         var downloadSpeed = download.DownloadSpeed != 0 ? "Speed: " + Helpers.ConvertFileSize(int.Parse(download.DownloadSpeed.ToString())) : "";
                         <p>
-                            Peers: @download.Peers                            
+                            Peers: @download.Peers  Estado : @download.State                            
                         </p>
                         <p>
                             @downloadSpeed
@@ -36,16 +36,26 @@
                             
                         </p>
                         }
-                    @if(download.State != "Paused")
+                    @if (download.State != "Paused" && download.State != "Stopped" && download.State != "Stopping" && download.State != "Metadata")
                     {
                         <button onclick="pauseDownload(@download.Index)" class='btn btn-primary' type='submit'>Pausar</button>
+                        <button onclick="pararDownload(@download.Index)" class='btn btn-primary' type='submit'>Parar</button>
                     }
-                    else
+                    else if (download.State != "Stopped" && download.State != "Metadata")
+                    {
+                        <button onclick="retomarDownload(@download.Index)" class='btn btn-primary' type='submit'>Retomar</button>
+                        <button onclick="pararDownload(@download.Index)" class='btn btn-primary' type='submit'>Parar</button>
+                    }
+                    else if (download.State == "Stopped" )
                     {
                         <button onclick="retomarDownload(@download.Index)" class='btn btn-primary' type='submit'>Retomar</button>
                     }
+                    else if (download.State == "Metadata")
+                    {
+                        <button onclick="pararDownload(@download.Index)" class='btn btn-primary' type='submit'>Parar</button>
+                    }
+
                     
-                        <button class='btn btn-primary' type='submit'>Cancelar</button>
                     </div>
                 </div>
         }

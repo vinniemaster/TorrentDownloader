@@ -82,3 +82,12 @@ function retomarDownload(index) {
             url: '/Home/RetomarDownload?index=' + index,
         });
 }
+
+
+function pararDownload(index) {
+    $.ajax(
+        {
+            type: 'POST',
+            url: '/Home/PararDownload?index=' + index,
+        });
+}

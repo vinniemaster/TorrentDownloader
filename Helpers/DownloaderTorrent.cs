@@ -5,6 +5,7 @@ using TPBApi.Classes;
 using System.Xml.Linq;
 using System.IO;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace TPBApi.Helpers
 {
@@ -107,14 +108,14 @@ namespace TPBApi.Helpers
 
                             if (manager.Progress == 100)
                             {
-                                StreamWriter txt = new StreamWriter("log.txt");
+                                StreamWriter txt = new StreamWriter("log"+ manager.MagnetLink.Name+".txt");
                                 foreach (var item in log)
                                 {
                                     txt.Write(item.ToString() + "\n");
                                 }
                                 txt.Close();
 
-                                await manager.StopAsync();
+
                             }
                         }
                         else
@@ -138,7 +139,7 @@ namespace TPBApi.Helpers
                 txt.Close();
             }
 
-            await Engine.StopAllAsync();
+
         }
 
         public async Task<Response<string>> TorrentDownload(string magnetUri, string path)
@@ -182,6 +183,25 @@ namespace TPBApi.Helpers
 
             downloadActive.StartAsync();
 
+        }
+
+
+
+        public async Task pararDownload(int index)
+        {
+
+            var ActiveDownloadList = ActiveDownloads[index];
+
+            var downloadActive = Engine.Torrents.Where(x => x.InfoHash == ActiveDownloadList.InfoHash).FirstOrDefault();
+
+
+            var stoppingTask = downloadActive.StopAsync();
+            while (downloadActive.State != TorrentState.Stopped)
+            {
+                ActiveDownloads[index].State = downloadActive.State.ToString();
+            }
+
+            await stoppingTask;
         }
     }
 }
