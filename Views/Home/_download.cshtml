@@ -12,7 +12,7 @@
             var downloadDec = string.Format("{0:0.00}", download.Progress);
             var downloadInt = string.Format("{0:0}", download.Progress);
 
-                <div class="card" style="width: 18rem;">
+                <div class="card" >
                     <div class="card-body">
                         <h5 class="card-title">@download.Name</h5>
                         
@@ -36,12 +36,12 @@
                             
                         </p>
                         }
-                    @if (download.State != "Paused" && download.State != "Stopped" && download.State != "Stopping" && download.State != "Metadata")
+                    @if (download.State == "Downloading")
                     {
                         <button onclick="pauseDownload(@download.Index)" class='btn btn-primary' type='submit'>Pausar</button>
                         <button onclick="pararDownload(@download.Index)" class='btn btn-primary' type='submit'>Parar</button>
                     }
-                    else if (download.State != "Stopped" && download.State != "Metadata")
+                    else if (download.State == "Paused")
                     {
                         <button onclick="retomarDownload(@download.Index)" class='btn btn-primary' type='submit'>Retomar</button>
                         <button onclick="pararDownload(@download.Index)" class='btn btn-primary' type='submit'>Parar</button>
