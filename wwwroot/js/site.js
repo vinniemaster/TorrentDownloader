@@ -91,3 +91,11 @@ function pararDownload(index) {
             url: '/Home/PararDownload?index=' + index,
         });
 }
+
+function ExcluirDownload(index) {
+    $.ajax(
+        {
+            type: 'POST',
+            url: '/Home/ExcluirDownload?index=' + index,
+        });
+}

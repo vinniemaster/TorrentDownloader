@@ -104,19 +104,19 @@ namespace TPBApi.Helpers
                                 ActiveDownloads[indexDownload].Reason = manager.Error.Reason;
                                 log.Add($"ERRO {manager.Error.Exception}, {manager.Error.Reason}");
                             }
-                            log.Add($"{manager.MagnetLink.Name},{peers.Count()},{Engine.TotalDownloadSpeed},{manager.State.ToString()}, {manager.Progress}");
+                            //log.Add($"{manager.MagnetLink.Name},{peers.Count()},{Engine.TotalDownloadSpeed},{manager.State.ToString()}, {manager.Progress}");
 
-                            if (manager.Progress == 100)
-                            {
-                                StreamWriter txt = new StreamWriter("log"+ manager.MagnetLink.Name+".txt");
-                                foreach (var item in log)
-                                {
-                                    txt.Write(item.ToString() + "\n");
-                                }
-                                txt.Close();
+                            //if (manager.Progress == 100)
+                            //{
+                            //    StreamWriter txt = new StreamWriter("log"+ manager.MagnetLink.Name+".txt");
+                            //    foreach (var item in log)
+                            //    {
+                            //        txt.Write(item.ToString() + "\n");
+                            //    }
+                            //    txt.Close();
 
 
-                            }
+                            //}
                         }
                         else
                         {
@@ -202,6 +202,25 @@ namespace TPBApi.Helpers
             }
 
             await stoppingTask;
+        }
+
+        public async Task excluirDownload(int index)
+        {
+            var ActiveDownloadList = ActiveDownloads[index];
+
+            var downloadActive = Engine.Torrents.Where(x => x.InfoHash == ActiveDownloadList.InfoHash).FirstOrDefault();
+            
+            var stoppingTask = downloadActive.StopAsync();
+            while (downloadActive.State != TorrentState.Stopped)
+            {
+                ActiveDownloads[index].State = downloadActive.State.ToString();
+            }
+
+            await stoppingTask;
+
+            await Engine.RemoveAsync(downloadActive);
+            ActiveDownloads.Remove(ActiveDownloadList);
+
         }
     }
 }

@@ -99,7 +99,7 @@ namespace TPBApi.Controllers
         public List<DownloadStatus> GetDownloadStatuses()
         {
             DownloaderTorrent downloadStatus = new DownloaderTorrent();
-            return downloadStatus.getDownloads();
+            return downloadStatus.getDownloads().OrderBy(x => x.State).ToList();
         }
 
         [HttpGet]
@@ -131,6 +131,14 @@ namespace TPBApi.Controllers
         {
             DownloaderTorrent downloader = new DownloaderTorrent();
             await downloader.pararDownload(index);
+        }
+
+
+        [HttpPost]
+        public async void ExcluirDownload(int index)
+        {
+            DownloaderTorrent downloader = new DownloaderTorrent();
+            await downloader.excluirDownload(index);
         }
 
         [HttpGet]

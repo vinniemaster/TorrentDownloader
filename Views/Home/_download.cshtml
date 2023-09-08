@@ -14,8 +14,10 @@
 
                 <div class="card" >
                     <div class="card-body">
-                        <h5 class="card-title">@download.Name</h5>
-                        
+                        <div class="top-card">
+                            <h5 class="card-title">@download.Name</h5>
+                            <button onclick="ExcluirDownload(@download.Index)"><i class='bx bx-trash'></i></button>
+                        </div>
                         @if(download.Exception != null)
                         {
                         <p class="card-text">Erro: @download.Exception.ToString() Causa: @download.Reason.ToString() </p>
@@ -50,7 +52,7 @@
                     {
                         <button onclick="retomarDownload(@download.Index)" class='btn btn-primary' type='submit'>Retomar</button>
                     }
-                    else if (download.State == "Metadata")
+                    else if (download.State == "Metadata" || download.State == "Seeding")
                     {
                         <button onclick="pararDownload(@download.Index)" class='btn btn-primary' type='submit'>Parar</button>
                     }
