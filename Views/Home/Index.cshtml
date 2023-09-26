@@ -94,30 +94,35 @@
 
         function tpbQuery(){
             
-            showHideLoading("#cards");
+            
             var input = $("#search").val();
             if (input != "") {
                 $.ajax(
                     {
                         type: 'GET',
-                        url: '/Home/QueryTPBApi?query=' + input,
+                        url: '/Home/QueryTPBApiPY?query=' + input,
                         success: function (response) {
                             var cardsHtml = "";
                             if (response[0].name != "No results returned") {
                                 response.forEach(item => {
 
-                                    var sizeFileConverted = ConvertSizeFile(item.size);
+                                    var magnetStr = "`" +item.magnet+ "`";
+                                    
+
                                     var cardHtml = "<div class='card w-100' style='width: 18rem;'>" +
                                         "<div class='card-body'>" +
                                         "<h5 class='card-title'>" + item.name + "</h5>" +
-                                        "<p class='card-text'>Tamanho: " + sizeFileConverted + "</p>" +
-                                        "<button onclick='showModalFilmeSerie(" + item.id + ")'  type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#staticBackdrop'>Baixar no servidor</button>" +
+                                        "<p class='card-text'>Tamanho: " + item.size + "</p>" +
+                                        "<p class='card-text'>Seeders: " + item.seeders + "</p>" +
+                                        "<button onclick='showModalFilmeSerie(" + magnetStr + ")'  type='button' class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#staticBackdrop'>Baixar no servidor</button>" +
                                         "</div>" +
                                         "</div>";
                                     cardsHtml = cardsHtml + cardHtml;
                                 });
+                                showHideLoading("#cards");
                             }
                             else{
+                                showHideLoading("#cards");
                                 cardsHtml = "<p class='noTorrents'>Nenhum torrent foi encontrado</p>";
                             }
                             $("#cards").html(cardsHtml);
@@ -131,23 +136,36 @@
             }
         };
 
-        function downloadTorrent(id,serieValue){
+        function downloadTorrent(magnet, serieValue) {
             var filmeSerieBool = $("#radioFilme").is(":checked");
+
+            var downloadObject = {
+                magnetLink: magnet,
+                filmeSerie: filmeSerieBool,
+                SerieName: null
+            }
 
 
             if (filmeSerieBool) {
+                var downloadObjectJSON = JSON.stringify(downloadObject);
                 $.ajax(
                     {
                         type: 'POST',
-                        url: '/Home/DownloadTorrent?id=' + id + '&filmeSerie=' + filmeSerieBool,
+                        url: '/Home/DownloadTorrent',
+                        contentType: "application/json",
+                        data: downloadObjectJSON
                     });
                 window.location.replace("/Home/Downloads");
             }
             else{
+                downloadObject.SerieName = serieValue;
+                var downloadObjectJSON = JSON.stringify(downloadObject);
                 $.ajax(
                     {
                         type: 'POST',
-                        url: '/Home/DownloadTorrent?id=' + id + '&filmeSerie=' + filmeSerieBool + '&SerieName='+serieValue,
+                        url: '/Home/DownloadTorrent',
+                        contentType: "application/json",
+                        data: downloadObjectJSON
                     });
                 window.location.replace("/Home/Downloads");
                 

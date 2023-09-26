@@ -60,31 +60,72 @@ namespace TPBApi.Controllers
 
             return null;
         }
+        [HttpGet]
+        public List<TorrentProps> QueryTPBApiPY([FromQuery] string query)
+        {
+            HttpClient client = new HttpClient();
+            var tpbApiurl = _configuration.GetValue<string>("TorrentPY");
+            var response = client.GetAsync(tpbApiurl + "/api/v1/all/search?query=" + query).Result;
+            var json = response.Content.ReadAsStringAsync().Result;
 
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonobject = JsonConvert.DeserializeObject<TorrentPY>(json);
+                return jsonobject.data.OrderByDescending(x => x.seeders).ToList();
+            }
+
+            return null;
+        }
+
+        //[HttpPost]
+        //public Response<string> DownloadTorrent([FromQuery]int id, bool filmeSerie, string SerieName) 
+        //{
+        //    var tpbUrl = _configuration.GetValue<string>("TPBUrl");
+        //    //Parseando a page do TPB e pegando o link magnet
+        //    var html = tpbUrl + id;
+        //    HtmlWeb web = new HtmlWeb();
+        //    var htmlDoc = web.Load(html);
+        //    var xPath = htmlDoc.DocumentNode.SelectNodes("//*[@id=\"details\"]/div[3]/div[1]/a[1]");
+        //    var magnetLink = xPath.Select(x => x.Attributes["href"].Value).FirstOrDefault();
+
+        //    //Baixando o torrent
+        //    if(magnetLink != null)
+        //    {
+
+        //        var FilmesPath = _configuration.GetValue<string>("FilmesPath");
+        //        var SeriesPath = _configuration.GetValue<string>("SeriesPath");
+        //        DownloaderTorrent helper = new DownloaderTorrent();
+        //        var path = filmeSerie == true ? FilmesPath : SeriesPath+"\\"+SerieName;
+        //        var response = helper.TorrentDownload(magnetLink, path);
+        //        if(response.Result.Message == "OK")
+        //        {
+        //            return new Response<string> { Message= response.Result.Message.ToString() };
+        //        }
+        //        else
+        //        {
+        //            return new Response<string>() { Message = response.Result.Message.ToString(), Data = response.Result.Data.ToString() };
+        //        }
+
+        //    }
+        //    return new Response<string> { Message = "Magnet Link inválido" };
+        //}
 
         [HttpPost]
-        public Response<string> DownloadTorrent([FromQuery]int id, bool filmeSerie, string SerieName) 
+        public Response<string> DownloadTorrent([FromBody] downloadBody downloadbody)
         {
-            var tpbUrl = _configuration.GetValue<string>("TPBUrl");
-            //Parseando a page do TPB e pegando o link magnet
-            var html = tpbUrl + id;
-            HtmlWeb web = new HtmlWeb();
-            var htmlDoc = web.Load(html);
-            var xPath = htmlDoc.DocumentNode.SelectNodes("//*[@id=\"details\"]/div[3]/div[1]/a[1]");
-            var magnetLink = xPath.Select(x => x.Attributes["href"].Value).FirstOrDefault();
 
             //Baixando o torrent
-            if(magnetLink != null)
+            if (downloadbody.magnetLink != null)
             {
 
                 var FilmesPath = _configuration.GetValue<string>("FilmesPath");
                 var SeriesPath = _configuration.GetValue<string>("SeriesPath");
                 DownloaderTorrent helper = new DownloaderTorrent();
-                var path = filmeSerie == true ? FilmesPath : SeriesPath+"\\"+SerieName;
-                var response = helper.TorrentDownload(magnetLink, path);
-                if(response.Result.Message == "OK")
+                var path = downloadbody.filmeSerie == true ? FilmesPath : SeriesPath + "\\" + downloadbody.SerieName;
+                var response = helper.TorrentDownload(downloadbody.magnetLink, path);
+                if (response.Result.Message == "OK")
                 {
-                    return new Response<string> { Message= response.Result.Message.ToString() };
+                    return new Response<string> { Message = response.Result.Message.ToString() };
                 }
                 else
                 {
@@ -153,5 +194,12 @@ namespace TPBApi.Controllers
             }
             return null;
         }
+    }
+
+    public class downloadBody
+    {
+        public string magnetLink { get; set; }
+        public bool filmeSerie { get; set; }
+        public string SerieName { get; set; }
     }
 }

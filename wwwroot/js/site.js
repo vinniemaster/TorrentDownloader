@@ -3,7 +3,10 @@
 
 
 
-function showModalFilmeSerie(id) {
+function showModalFilmeSerie(magnet) {
+
+    var magnetStr = "`" + magnet + "`";
+    console.log(magnetStr);
     $('#staticBackdropLabel').html("Baixar no Servidor");
     $('.modal-body').html("<p>O conteúdo é um filme ou série?</p>" +
         "<form id='filmeSerie'>"+
@@ -19,10 +22,10 @@ function showModalFilmeSerie(id) {
         "</form> " +
         "<div id='SelectSerie'></div>");
 
-    $('#btnPrimary').attr("onclick", "downloadTorrent(" + id + ")").html("Baixar").prop('disabled', false);
+    $('#btnPrimary').attr("onclick", "downloadTorrent(`" + magnet + "`)").html("Baixar").prop('disabled', false);
     $('#btnSecondary').html("Cancelar");
 
-    downloadId = "downloadTorrent(" + id;
+    downloadId = "downloadTorrent(" + magnet;
     
 };
 
