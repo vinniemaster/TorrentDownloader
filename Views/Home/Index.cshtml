@@ -103,7 +103,7 @@
                         url: '/Home/QueryTPBApiPY?query=' + input,
                         success: function (response) {
                             var cardsHtml = "";
-                            if (response[0].name != "No results returned") {
+                            if (response != undefined && response.length > 0) {
                                 response.forEach(item => {
 
                                     var magnetStr = "`" +item.magnet+ "`";
@@ -129,6 +129,10 @@
 
 
                         },
+                        error: function(response){
+                            showHideLoading("#cards");
+                            $("#cards").html("<p class='noTorrents'>Nenhum torrent foi encontrado</p>");
+                        }
                     });
             }
             else {
